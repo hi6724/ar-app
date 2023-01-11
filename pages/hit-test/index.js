@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
-import InnerHTML from "dangerously-set-html-content";
 import Link from "next/link";
+import HitTestComponent from "../../components/HitTest/HitTest";
 
-function HitTest() {
-  const [htmlFileString, setHtmlFileString] = useState("loading...");
-  useEffect(() => {
-    (async function () {
-      const data = await await (await fetch("/index.html")).text();
-      setHtmlFileString(data);
-    })();
-  }, []);
+function HitTestPage() {
   return (
     <>
       <Link href={"/"} style={{ fontSize: "2rem", color: "#000" }}>
         home
       </Link>
-      <InnerHTML html={htmlFileString} />;
+      <HitTestComponent />
     </>
   );
 }
 
-export default HitTest;
+export default HitTestPage;

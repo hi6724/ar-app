@@ -71,7 +71,7 @@ const addFlower = (event) => {
 export default function App() {
   return (
     <>
-      <Link style={{ fontSize: "2rem", color: "#000" }} href={"hit"}>
+      <Link style={{ fontSize: "2rem", color: "#000" }} href={"hit-test"}>
         hit-test
       </Link>
       <ARButton />
