@@ -591,6 +591,11 @@
   "resolved" "https://registry.npmjs.org/damerau-levenshtein/-/damerau-levenshtein-1.0.8.tgz"
   "version" "1.0.8"
 
+"dangerously-set-html-content@^1.0.12":
+  "integrity" "sha512-gy0p8LreppV3kIR9WEKnHKq7jcCN7QxkU+v1T17bEjRXraHkZRHtDoYSnvi32IUvCi+roy/NE45cpGyNsaEy1Q=="
+  "resolved" "https://registry.npmjs.org/dangerously-set-html-content/-/dangerously-set-html-content-1.0.12.tgz"
+  "version" "1.0.12"
+
 "debounce@^1.2.1":
   "integrity" "sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug=="
   "resolved" "https://registry.npmjs.org/debounce/-/debounce-1.2.1.tgz"
