@@ -198,7 +198,7 @@
     "utility-types" "^3.10.0"
     "zustand" "^3.5.13"
 
-"@react-three/fiber@>=6.0", "@react-three/fiber@>=8.0", "@react-three/fiber@>=8.0.0":
+"@react-three/fiber@^8.10.0", "@react-three/fiber@>=6.0", "@react-three/fiber@>=8.0", "@react-three/fiber@>=8.0.0":
   "integrity" "sha512-veyvW9clPjS0oQ4g8e2E8yW3v8C2wcXhJp3VyTgjzhpKYAL0xq0+aiofHdpNjx/CiqlR25mYyFky6HskWP3B5w=="
   "resolved" "https://registry.npmjs.org/@react-three/fiber/-/fiber-8.10.0.tgz"
   "version" "8.10.0"
