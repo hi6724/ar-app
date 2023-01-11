@@ -1,5 +1,11 @@
 import React, { Suspense, useState } from "react";
-import { Interactive, XR, ARButton, Controllers } from "@react-three/xr";
+import {
+  Interactive,
+  XR,
+  ARButton,
+  Controllers,
+  useHitTest,
+} from "@react-three/xr";
 import { Text } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 
@@ -49,13 +55,29 @@ function Button(props) {
   );
 }
 
+let pos;
+function HitTest() {
+  useHitTest((hitMatrix, hitResult) => {
+    pos = hitResult;
+  });
+  return <ambientLight />;
+}
 export default function App() {
+  const addFlower = (event) => {
+    console.log(pos);
+  };
+
   return (
     <>
       <ARButton />
       <Canvas>
-        <XR referenceSpace="local">
-          <ambientLight />
+        <XR
+          onSessionStart={({ target }) => {
+            target.addEventListener("select", addFlower);
+          }}
+          referenceSpace="local"
+        >
+          <HitTest />
           <pointLight position={[10, 10, 10]} />
           <Button position={[0, 0.1, -0.2]} />
           <Controllers />
