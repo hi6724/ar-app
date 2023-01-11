@@ -8,6 +8,7 @@ import {
 } from "@react-three/xr";
 import { Text } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import Link from "next/link";
 
 function Box({ color, size, scale, children, ...rest }) {
   return (
@@ -55,7 +56,6 @@ function Button(props) {
   );
 }
 
-
 function HitTest() {
   useHitTest((hitMatrix, hitResult) => {
     console.log(hitResult);
@@ -71,6 +71,9 @@ const addFlower = (event) => {
 export default function App() {
   return (
     <>
+      <Link style={{ fontSize: "2rem", color: "#000" }} href={"hit"}>
+        hit-test
+      </Link>
       <ARButton />
       <Canvas>
         <XR
