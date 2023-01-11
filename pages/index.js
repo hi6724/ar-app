@@ -55,29 +55,35 @@ function Button(props) {
   );
 }
 
-let pos;
+
 function HitTest() {
   useHitTest((hitMatrix, hitResult) => {
-    pos = hitResult;
+    console.log(hitResult);
   });
-  return <ambientLight />;
+  return <></>;
 }
-export default function App() {
-  const addFlower = (event) => {
-    console.log(pos);
-  };
 
+const addFlower = (event) => {
+  console.log(event);
+  console.log(pos);
+};
+
+export default function App() {
   return (
     <>
       <ARButton />
       <Canvas>
         <XR
-          onSessionStart={({ target }) => {
-            target.addEventListener("select", addFlower);
+          onSessionStart={({ target: session }) => {
+            session.addEventListener("select", addFlower);
+            session.requestReferenceSpace("local").then((refSpace) => {
+              xrRefSpace = refSpace;
+            });
           }}
           referenceSpace="local"
         >
           <HitTest />
+          <ambientLight />
           <pointLight position={[10, 10, 10]} />
           <Button position={[0, 0.1, -0.2]} />
           <Controllers />
