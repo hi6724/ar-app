@@ -7,18 +7,11 @@ function App() {
     let container;
     let camera: any, scene: any, renderer: any;
     let controller;
-    let controller1, controller2;
-
     let reticle: any;
-
     let hitTestSource: any = null;
     let hitTestSourceRequested = false;
-
     let raycaster: any;
-
-    const intersected: any = [];
     const tempMatrix: any = new THREE.Matrix4();
-
     let group: any;
 
     init();
@@ -97,6 +90,26 @@ function App() {
         0
       );
 
+      function onSelect(event: any) {
+        const tempController = event.target;
+        const intersections = getIntersections(tempController);
+
+        if (intersections.length > 0) {
+          const intersection = intersections[0];
+          const object = intersection.object;
+          const hex = 0xffffff * Math.random();
+          object.material.color.setHex(hex);
+        } else {
+          const material = new THREE.MeshPhongMaterial({
+            color: 0xffffff * Math.random(),
+          });
+          const mesh = new THREE.Mesh(geometry, material);
+          reticle.matrix.decompose(mesh.position, mesh.quaternion, mesh.scale);
+          mesh.scale.y = Math.random() * 2 + 1;
+          scene.add(mesh);
+        }
+      }
+
       function onSelectStart(event: any) {
         const tempController = event.target;
 
@@ -142,8 +155,7 @@ function App() {
       }
 
       controller = renderer.xr.getController(0);
-      controller.addEventListener('selectstart', onSelectStart);
-      controller.addEventListener('selectend', onSelectEnd);
+      controller.addEventListener('select', onSelect);
       raycaster = new THREE.Raycaster();
       scene.add(controller);
 
