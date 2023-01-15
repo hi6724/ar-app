@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as THREE from 'three';
-// eslint-disable-next-line
 import { ARButton } from 'three/examples/jsm/webxr/ARButton';
+import { Link } from 'react-router-dom';
 function App() {
   useEffect(() => {
     let container;
@@ -231,12 +231,7 @@ function App() {
 
   return (
     <div id='info'>
-      <a href='https://threejs.org' target='_blank' rel='noopener'>
-        three.js
-      </a>{' '}
-      ar - hit test
-      <br />
-      (Chrome Android 81+)
+      <Link to={'/'}>to Ar</Link>
     </div>
   );
 }
