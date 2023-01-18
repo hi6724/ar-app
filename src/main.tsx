@@ -2,16 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import App from './App';
-import Ar from './pages/Ar';
+import HitTest from './pages/HitTest';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Ar />,
+    element: <App />,
   },
   {
-    path: 'ar',
-    element: <App />,
+    path: 'hit-test',
+    element: <HitTest />,
   },
 ]);
 

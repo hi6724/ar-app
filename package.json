@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "aframe": "^1.4.1",
-    "mind-ar": "^1.2.0",
+    "dangerously-set-html-content": "^1.0.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.6.2",
