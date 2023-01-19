@@ -10,7 +10,7 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const MAP_OPTION: google.maps.MapOptions = {
-  tilt: 10,
+  tilt: 30,
   heading: 0,
   zoom: 18,
   center: { lat: 35.6594945, lng: 139.6999859 },
@@ -65,19 +65,16 @@ function ThreeGlobe() {
         // Wait to move the camera until the 3D model loads.
 
         loader.manager.onLoad = () => {
-          console.log('Hello');
-          let lat = -1;
-          let lng = -1;
           renderer.setAnimationLoop((e: any) => {
-            navigator.geolocation.getCurrentPosition(({ coords }) => {
-              if (coords.latitude != lat || coords.longitude != lng) {
-                lat = coords.latitude;
-                lng = coords.longitude;
-                alert(`latitude:${lat},longitude:${lng}`);
-                logs.push({ lat, lng });
+            navigator.geolocation.getCurrentPosition(
+              ({ coords: { latitude, longitude } }) => {
+                MAP_OPTION.center = { lat: latitude, lng: longitude };
               }
-            });
+            );
+
             webglOverlayView.requestRedraw();
+            const { center } = MAP_OPTION;
+            map.moveCamera({ center });
           });
         };
       };
