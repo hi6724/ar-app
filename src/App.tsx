@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 
 function App() {
   const [log, setLog] = useState<any>([]);
+  const [coord, setCoord] = useState<any>([]);
+
   const watchGeoLocation = () => {
     navigator.geolocation.watchPosition(
       ({ coords: { latitude, longitude } }) => {
-        setLog([...log, { latitude, longitude }]);
+        const newRecord = { latitude, longitude };
+        setCoord(newRecord);
+        setLog((prev: any) => [...prev, newRecord]);
       }
     );
   };
