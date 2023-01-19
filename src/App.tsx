@@ -3,36 +3,30 @@ import { Link } from 'react-router-dom';
 
 function App() {
   const [log, setLog] = useState<any>([]);
-  const handleClick = (e: any) => {
+  const watchGeoLocation = () => {
     navigator.geolocation.watchPosition(
-      ({ coords }) => {
-        const now = new Date();
-        setLog([
-          ...log,
-          {
-            time: now.toLocaleTimeString(),
-            lat: coords.latitude,
-            lng: coords.longitude,
-          },
-        ]);
-      },
-      (err) => alert(err.message),
-      {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 5000,
+      ({ coords: { latitude, longitude } }) => {
+        setLog([...log, { latitude, longitude }]);
+      }
+    );
+  };
+  const getCurrentPosition = () => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords: { latitude, longitude } }) => {
+        setLog([...log, { latitude, longitude }]);
       }
     );
   };
 
   return (
     <div>
-      <button onClick={handleClick}>위치추적</button>
+      <button onClick={watchGeoLocation}>자동위치추적</button>
+      <button onClick={getCurrentPosition}>현재위치기록</button>
       <h1>App</h1>
       <Link to={'/hit-test'}>to HitTest</Link>
       {log.map((el: any, i: number) => (
         <div key={i}>
-          latitude:{el.lat} longitude:{el.lng}
+          latitude:{el.latitude} longitude:{el.longitude}
         </div>
       ))}
     </div>
