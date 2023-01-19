@@ -10,7 +10,7 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const MAP_OPTION: google.maps.MapOptions = {
-  tilt: 0,
+  tilt: 10,
   heading: 0,
   zoom: 18,
   center: { lat: 35.6594945, lng: 139.6999859 },
@@ -78,11 +78,6 @@ function ThreeGlobe() {
               }
             });
             webglOverlayView.requestRedraw();
-            const { tilt, heading, zoom } = MAP_OPTION;
-            if (MAP_OPTION.tilt < 67.5) {
-              MAP_OPTION.tilt += 0.5;
-            }
-            map.moveCamera({ tilt, heading, zoom });
           });
         };
       };
