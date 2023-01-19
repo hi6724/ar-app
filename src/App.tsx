@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 function App() {
@@ -16,24 +16,41 @@ function App() {
   };
   const getCurrentPosition = () => {
     navigator.geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) => {
-        setLog([...log, { latitude, longitude }]);
+      ({ coords: { latitude, longitude, heading } }) => {
+        setLog([...log, { latitude, longitude, heading }]);
       }
     );
   };
 
-  console.log(coord);
+  const initCompass = () => {
+    alert('start compass!!');
+    window.addEventListener(
+      'deviceorientationabsolute',
+      (e) => {
+        console.log(e);
+      },
+      true
+    );
+  };
 
   return (
     <div>
-      <button onClick={watchGeoLocation}>자동위치추적</button>
-      <button onClick={getCurrentPosition}>현재위치기록</button>
-      <h1>App</h1>
-      <Link to={'/hit-test'}>to HitTest</Link>
-      <Link to={'/three'}>to googleMap</Link>
+      <div>
+        <button onClick={watchGeoLocation}>자동위치추적</button>
+        <button onClick={getCurrentPosition}>현재위치기록</button>
+      </div>
+      <div>
+        <button onClick={initCompass}>나침반</button>
+      </div>
+      <div>
+        <Link to={'/hit-test'}>#HitTest</Link>
+      </div>
+      <div>
+        <Link to={'/three'}>#googleMap</Link>
+      </div>
       {log.map((el: any, i: number) => (
         <div key={i}>
-          latitude:{el.latitude} longitude:{el.longitude}
+          latitude:{el.latitude} longitude:{el.longitude} heading: {el.heading}
         </div>
       ))}
     </div>
