@@ -1,0 +1,11 @@
+Model Information:
+* title:	Juniper low poly model
+* source:	https://sketchfab.com/3d-models/juniper-low-poly-model-a2a70d8dfe3d4371ba17f5d05d0582c2
+* author:	Coder_uz (https://sketchfab.com/Coder_uz)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Juniper low poly model" (https://sketchfab.com/3d-models/juniper-low-poly-model-a2a70d8dfe3d4371ba17f5d05d0582c2) by Coder_uz (https://sketchfab.com/Coder_uz) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

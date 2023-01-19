@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 function App() {
   const [log, setLog] = useState<any>([]);
-  const [compass, setCompass] = useState<any>([]);
+  const [compass, setCompass] = useState<any>();
   const [coord, setCoord] = useState<any>([]);
 
   const watchGeoLocation = () => {
@@ -28,7 +28,7 @@ function App() {
     window.addEventListener(
       'deviceorientationabsolute',
       (e: any) => {
-        setCompass([...compass, e.alpha]);
+        setCompass(360 - e.alpha);
       },
       true
     );
@@ -54,9 +54,7 @@ function App() {
           latitude:{el.latitude} longitude:{el.longitude} heading: {el.heading}
         </div>
       ))}
-      {compass.map((el: any, i: any) => (
-        <div key={i}>{el}</div>
-      ))}
+      <div>{compass}</div>
     </div>
   );
 }
