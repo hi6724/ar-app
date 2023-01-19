@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { Wrapper } from '@googlemaps/react-wrapper';
+
 import App from './App';
 import HitTest from './pages/HitTest';
 import ThreeGlobe from './pages/ThreeGlobe';
@@ -21,5 +23,7 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <RouterProvider router={router} />
+  <Wrapper apiKey='AIzaSyAhj152xH7BYpQQic-syvvx_j0tvjny2sM'>
+    <RouterProvider router={router} />
+  </Wrapper>
 );

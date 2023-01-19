@@ -1,36 +1,120 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import globe from '../assets/globe.jpg';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  AmbientLight,
+  DirectionalLight,
+  Matrix4,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+} from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
+const MAP_OPTION: google.maps.MapOptions = {
+  tilt: 0,
+  heading: 0,
+  zoom: 18,
+  center: { lat: 35.6594945, lng: 139.6999859 },
+  mapId: 'da92ac680ee5382b',
+  disableDefaultUI: true,
+  keyboardShortcuts: false,
+};
 
 function ThreeGlobe() {
-  const ref = useRef<any>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const [map, setMap] = useState<google.maps.Map>();
+
   useEffect(() => {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      innerWidth / innerHeight,
-      0.1,
-      1000
-    );
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(innerWidth, innerHeight);
-    ref.current?.appendChild(renderer.domElement);
-    const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(5, 50, 50),
-      new THREE.MeshBasicMaterial({
-        map: new THREE.TextureLoader().load(globe),
-      })
-    );
-    scene.add(sphere);
-    camera.position.z = 10;
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
+    let logs = [];
+    function initWebglOverlayView(map: any) {
+      let scene: any, renderer: any, camera: any, loader: any;
+      const webglOverlayView = new google.maps.WebGLOverlayView();
+
+      webglOverlayView.onAdd = () => {
+        // Set up the scene.
+        scene = new Scene();
+        camera = new PerspectiveCamera();
+
+        const ambientLight = new AmbientLight(0xffffff, 0.75); // Soft white light.
+
+        scene.add(ambientLight);
+
+        const directionalLight = new DirectionalLight(0xffffff, 0.25);
+
+        directionalLight.position.set(0.5, -1, 0.5);
+        scene.add(directionalLight);
+        // Load the model.
+        loader = new GLTFLoader();
+
+        const source =
+          'https://raw.githubusercontent.com/googlemaps/js-samples/main/assets/pin.gltf';
+
+        loader.load(source, (gltf: any) => {
+          gltf.scene.scale.set(10, 10, 10);
+          gltf.scene.rotation.x = Math.PI; // Rotations are in radians.
+          scene.add(gltf.scene);
+        });
+      };
+
+      webglOverlayView.onContextRestored = ({ gl }) => {
+        renderer = new WebGLRenderer({
+          canvas: gl.canvas,
+          context: gl,
+          ...gl.getContextAttributes(),
+        });
+        renderer.autoClear = false;
+        // Wait to move the camera until the 3D model loads.
+
+        loader.manager.onLoad = () => {
+          console.log('Hello');
+          let lat = -1;
+          let lng = -1;
+          renderer.setAnimationLoop((e: any) => {
+            navigator.geolocation.getCurrentPosition(({ coords }) => {
+              if (coords.latitude != lat || coords.longitude != lng) {
+                lat = coords.latitude;
+                lng = coords.longitude;
+                alert(`latitude:${lat},longitude:${lng}`);
+                logs.push({ lat, lng });
+              }
+            });
+            webglOverlayView.requestRedraw();
+            const { tilt, heading, zoom } = MAP_OPTION;
+            if (MAP_OPTION.tilt < 67.5) {
+              MAP_OPTION.tilt += 0.5;
+            }
+            map.moveCamera({ tilt, heading, zoom });
+          });
+        };
+      };
+
+      webglOverlayView.onDraw = ({ gl, transformer }) => {
+        const latLngAltitudeLiteral: any = {
+          lat: MAP_OPTION!.center!.lat,
+          lng: MAP_OPTION!.center!.lng,
+          altitude: 100,
+        };
+
+        const matrix = transformer.fromLatLngAltitude(latLngAltitudeLiteral);
+
+        camera.projectionMatrix = new Matrix4().fromArray(matrix);
+        webglOverlayView.requestRedraw();
+        renderer.render(scene, camera);
+        renderer.resetState();
+      };
+
+      webglOverlayView.setMap(map);
     }
-    animate();
+
+    if (ref.current && !map) {
+      const temp = new google.maps.Map(ref.current, MAP_OPTION);
+      setMap(temp);
+      initWebglOverlayView(temp);
+    }
   }, []);
 
-  return <div ref={ref}>ThreeGlobe</div>;
+  return (
+    <div ref={ref} id='map' style={{ height: '100vh', width: '100vw' }}></div>
+  );
 }
 
 export default ThreeGlobe;
