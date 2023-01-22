@@ -10,9 +10,9 @@ import { DB } from '../db';
 let CENTER = { lat: 37.493, lng: 126.756 };
 const TEST_POS = { lat: 37.493, lng: 126.756 };
 const MAP_OPTION: google.maps.MapOptions = {
-  tilt: 0,
+  tilt: 30,
   heading: 20,
-  zoom: 16,
+  zoom: 21,
   center: CENTER,
   mapId: 'da92ac680ee5382b',
   disableDefaultUI: true,
@@ -21,8 +21,7 @@ const MAP_OPTION: google.maps.MapOptions = {
 
 function ThreeGlobe() {
   const ref = useRef<HTMLDivElement>(null);
-  let scene: any;
-  let map: any;
+  let scene: any, compass: any, map: any, userModel: any;
 
   useEffect(() => {
     let mixer: any;
@@ -30,7 +29,7 @@ function ThreeGlobe() {
       let renderer: any, camera: any, loader: any;
       let treeModel: any;
       const webglOverlayView = new google.maps.WebGLOverlayView();
-      const marker = new google.maps.Marker({
+      new google.maps.Marker({
         position: TEST_POS,
         map,
       });
@@ -48,16 +47,18 @@ function ThreeGlobe() {
         // 유저 에셋 로드
         loader = new GLTFLoader();
         loader.load('/stickman/scene.gltf', (gltf: any) => {
-          gltf.scene.scale.set(100, 100, 100);
-          gltf.scene.rotation.x = Math.PI / 2;
-          mixer = new THREE.AnimationMixer(gltf.scene);
-          const clip = THREE.AnimationClip.findByName(gltf.animations, 'Idle');
+          userModel = gltf.scene;
+          userModel.scale.set(10, 10, 10);
+          userModel.rotation.x = Math.PI / 2;
+          mixer = new THREE.AnimationMixer(userModel);
+          const clip = THREE.AnimationClip.findByName(gltf.animations, 'Run');
           mixer.clipAction(clip).play();
-          scene.add(gltf.scene);
+          scene.add(userModel);
         });
         // 애니메이션 추가
         loader.manager.onLoad = () => {
           const clock = new THREE.Clock();
+          userModel.rotation.y = (Math.PI * compass) / 180;
           renderer.setAnimationLoop((e: any) => {
             mixer?.update(clock.getDelta());
             if (!MAP_OPTION.center?.lat) return;
@@ -117,6 +118,11 @@ function ThreeGlobe() {
     }
 
     if (!ref.current) return;
+    window.addEventListener(
+      'deviceorientationabsolute',
+      (e: any) => (compass = 360 - e.alpha),
+      true
+    );
     map = new google.maps.Map(ref.current, MAP_OPTION);
     initWebglOverlayView(map);
   }, []);
