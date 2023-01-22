@@ -58,8 +58,8 @@ function ThreeGlobe() {
         // 애니메이션 추가
         loader.manager.onLoad = () => {
           const clock = new THREE.Clock();
-          userModel.rotation.y = (Math.PI * compass) / 180;
           renderer.setAnimationLoop((e: any) => {
+            userModel.rotation.y = (Math.PI * compass) / 180;
             mixer?.update(clock.getDelta());
             if (!MAP_OPTION.center?.lat) return;
             webglOverlayView.requestRedraw();
