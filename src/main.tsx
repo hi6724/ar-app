@@ -6,6 +6,7 @@ import { Wrapper } from '@googlemaps/react-wrapper';
 import App from './App';
 import HitTest from './pages/HitTest';
 import ThreeGlobe from './pages/ThreeGlobe';
+import ThreeMap from './pages/ThreeMap';
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
   {
     path: 'three',
     element: <ThreeGlobe />,
+  },
+  {
+    path: 'map',
+    element: <ThreeMap />,
   },
 ]);
 

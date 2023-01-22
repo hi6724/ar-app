@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import * as THREE from 'three';
-import { latLngToVector3, ThreeJSOverlayView } from '@googlemaps/three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils';
+import { latLngToVector3Relative } from '@googlemaps/three';
+import { DB } from '../db';
 // import stickMan from '../assets/scene.gltf';
 
+let CENTER = { lat: 37.493, lng: 126.756 };
+const TEST_POS = { lat: 37.493, lng: 126.756 };
 const MAP_OPTION: google.maps.MapOptions = {
-  tilt: 30,
-  heading: 0,
-  zoom: 18,
-  center: { lat: 37.4935145, lng: 126.7567966 },
+  tilt: 0,
+  heading: 20,
+  zoom: 16,
+  center: CENTER,
   mapId: 'da92ac680ee5382b',
   disableDefaultUI: true,
   keyboardShortcuts: false,
@@ -18,96 +21,114 @@ const MAP_OPTION: google.maps.MapOptions = {
 
 function ThreeGlobe() {
   const ref = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map>();
-  async function initMap() {
-    if (!ref.current) return;
-    let userModel: any;
-    const temp: any = new google.maps.Map(ref.current, MAP_OPTION);
-    const scene = new THREE.Scene();
-    const clock = new THREE.Clock();
-    let mixer: any;
-    new ThreeJSOverlayView({
-      scene,
-      map: temp,
-      THREE,
-    });
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
-    directionalLight.position.set(0, 10, 50);
-    scene.add(directionalLight);
-
-    // user 렌더링
-    const loader = new GLTFLoader();
-    const url = '/stickman/scene.gltf';
-    loader.load(url, (gltf) => {
-      userModel = gltf.scene;
-      gltf.scene.scale.set(100, 100, 100);
-      gltf.scene.position.copy(
-        latLngToVector3({ lat: 37.4935145, lng: 126.7567966 })
-      );
-      gltf.scene.position.setY(100);
-      mixer = new THREE.AnimationMixer(gltf.scene);
-      const clip = THREE.AnimationClip.findByName(gltf.animations, 'Run');
-      mixer.clipAction(clip).play();
-      scene.add(gltf.scene);
-    });
-
-    // 빌딩 렌더링
-
-    const treeUrl = '/tree/scene.gltf';
-    let treeModel: any;
-    treeModel = await loader.loadAsync(treeUrl);
-
-    let mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(10, 200, 10),
-      new THREE.MeshNormalMaterial()
-    );
-
-    [1, 2, 3, 4, 5].forEach((el) => {
-      console.log('loop', el, treeModel);
-      if (treeModel) {
-        const tree = SkeletonUtils.clone(treeModel.scene);
-        tree.position.copy(
-          latLngToVector3({ lat: 37.4935145 + el / 1000, lng: 126.7567966 })
-        );
-        tree.position.setY(25);
-        scene.add(tree);
-      }
-    });
-
-    let prevPos = { lat: 37.4935145, lng: 126.7567966 };
-    const animate = () => {
-      mixer?.update(clock.getDelta());
-      const newPos = { lat: prevPos.lat - 0.000001, lng: 126.7567966 };
-      prevPos = newPos;
-      userModel?.position.copy(latLngToVector3(newPos));
-      // console.log(userModel.position);
-      requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-
-    setMap(temp);
-  }
+  let scene: any;
+  let map: any;
 
   useEffect(() => {
-    let compass: any;
-    window.addEventListener(
-      'deviceorientationabsolute',
-      (e: any) => {
-        compass = 360 - e.alpha;
-      },
-      true
-    );
+    let mixer: any;
+    function initWebglOverlayView(map: any) {
+      let renderer: any, camera: any, loader: any;
+      let treeModel: any;
+      const webglOverlayView = new google.maps.WebGLOverlayView();
+      const marker = new google.maps.Marker({
+        position: TEST_POS,
+        map,
+      });
 
-    if (ref.current && !map) {
-      initMap();
+      webglOverlayView.onAdd = async () => {
+        // scene 기본
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera();
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.75); // Soft white light.
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.25);
+        directionalLight.position.set(0.5, -1, 0.5);
+        scene.add(directionalLight);
+
+        // 유저 에셋 로드
+        loader = new GLTFLoader();
+        loader.load('/stickman/scene.gltf', (gltf: any) => {
+          gltf.scene.scale.set(100, 100, 100);
+          gltf.scene.rotation.x = Math.PI / 2;
+          mixer = new THREE.AnimationMixer(gltf.scene);
+          const clip = THREE.AnimationClip.findByName(gltf.animations, 'Idle');
+          mixer.clipAction(clip).play();
+          scene.add(gltf.scene);
+        });
+        // 애니메이션 추가
+        loader.manager.onLoad = () => {
+          const clock = new THREE.Clock();
+          renderer.setAnimationLoop((e: any) => {
+            mixer?.update(clock.getDelta());
+            if (!MAP_OPTION.center?.lat) return;
+            webglOverlayView.requestRedraw();
+          });
+        };
+      };
+
+      webglOverlayView.onContextRestored = ({ gl }) => {
+        renderer = new THREE.WebGLRenderer({
+          canvas: gl.canvas,
+          context: gl,
+          ...gl.getContextAttributes(),
+        });
+        renderer.autoClear = false;
+      };
+
+      let isAdded = false;
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(),
+        new THREE.MeshNormalMaterial()
+      );
+      const boxes: any = [];
+      mesh.scale.set(30, 30, 30);
+      webglOverlayView.onDraw = ({ gl, transformer }) => {
+        const pos = { ...CENTER, altitude: 0 };
+        navigator.geolocation.getCurrentPosition(
+          ({ coords: { latitude, longitude } }) => {
+            CENTER = { lat: latitude, lng: longitude };
+          }
+        );
+        if (!isAdded) {
+          DB.datas.forEach((location) => {
+            const box = mesh.clone();
+            boxes.push({ box, location });
+            scene.add(box);
+          });
+          isAdded = true;
+        }
+        boxes.forEach(({ box, location }: any) => {
+          const { x, z } = latLngToVector3Relative(pos, location);
+          box.position.set(-x * 0.7934375, z * 0.7934375, 0);
+        });
+        const { x, z } = latLngToVector3Relative(pos, TEST_POS);
+        mesh.position.set(-x * 0.7934375, z * 0.7934375, 0);
+
+        const matrix = transformer.fromLatLngAltitude(pos);
+
+        camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+
+        webglOverlayView.requestRedraw();
+        renderer.render(scene, camera);
+        renderer.resetState();
+      };
+
+      webglOverlayView.setMap(map);
     }
+
+    if (!ref.current) return;
+    map = new google.maps.Map(ref.current, MAP_OPTION);
+    initWebglOverlayView(map);
   }, []);
+  const handleCenter = () => {
+    map.moveCamera({ center: CENTER });
+  };
 
   return (
-    <div ref={ref} id='map' style={{ height: '100vh', width: '100vw' }}></div>
+    <>
+      <div ref={ref} id='map' style={{ height: '90vh', width: '100vw' }}></div>
+      <button onClick={handleCenter}>to Center</button>
+    </>
   );
 }
 
