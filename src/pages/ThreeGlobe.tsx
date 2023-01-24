@@ -19,6 +19,7 @@ const MAP_OPTION: google.maps.MapOptions = {
   mapId: 'c93e550b0413e551',
   disableDefaultUI: true,
   keyboardShortcuts: false,
+  gestureHandling: 'cooperative',
 };
 
 function ThreeGlobe() {
@@ -39,7 +40,7 @@ function ThreeGlobe() {
     new THREE.BoxGeometry(),
     new THREE.MeshNormalMaterial()
   );
-  mesh.scale.set(10, 10, 100);
+  mesh.scale.set(5, 5, 10);
   let isAdded = false;
   let prevPosition = { lat: 0, lng: 0 };
 
@@ -51,7 +52,6 @@ function ThreeGlobe() {
         position: TEST_POS,
         map,
       });
-
       webglOverlayView.onAdd = async () => {
         // scene 기본
         scene = new THREE.Scene();
@@ -95,7 +95,6 @@ function ThreeGlobe() {
       };
 
       webglOverlayView.onDraw = async ({ transformer }) => {
-        console.log('draw');
         const pos = { ...CENTER, altitude: 0 };
         navigator.geolocation.getCurrentPosition(
           async ({ coords: { latitude, longitude } }) => {
@@ -111,8 +110,8 @@ function ThreeGlobe() {
               lat2: latitude,
               lon2: longitude,
             });
-            // 10cm 이상일 때 UI 업데이트
-            if (distance > 0.0001) {
+            // 1m 이상일 때 UI 업데이트
+            if (distance > 0.001) {
               // alert(distance);
               CENTER = { lat: latitude, lng: longitude };
               alert('MOVED!');
@@ -158,7 +157,7 @@ function ThreeGlobe() {
         }
         boxes.forEach(({ box, location }: any) => {
           const { x, z } = latLngToVector3Relative(pos, location);
-          box.position.set(-x * 0.7934375, z * 0.7934375, 0);
+          box.position.set(-x * 0.7934375, z * 0.7934375, 5);
         });
 
         const matrix = transformer.fromLatLngAltitude(pos);
